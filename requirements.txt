@@ -4,6 +4,8 @@ langchain
 langchain-text-splitters
 langchain-classic
 langchain-google-genai
+langchain-huggingface
+sentence-transformers
 langchain-community
 faiss-cpu
 python-dotenv
