@@ -2,10 +2,11 @@ import streamlit as st
 import os
 from PyPDF2 import PdfReader
 from langchain_text_splitters import CharacterTextSplitter
-from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_community.vectorstores import FAISS
 from langchain_classic.chains import ConversationalRetrievalChain
 from langchain_classic.memory import ConversationBufferMemory
+from langchain_huggingface import HuggingFaceEmbeddings
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -32,8 +33,8 @@ def get_text_chunks(text):
 
 def get_vectorstore(text_chunks, api_key):
     """Converts text chunks into embeddings and stores them in a FAISS vector database."""
-    # Use Google's free embedding model to convert text to vectors
-    embeddings = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001", google_api_key=api_key)
+    # Use HuggingFace's free local embedding model to avoid Google rate limits!
+    embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
     return FAISS.from_texts(texts=text_chunks, embedding=embeddings)
 
 def get_conversation_chain(vectorstore, api_key):
