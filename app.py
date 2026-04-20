@@ -33,7 +33,7 @@ def get_text_chunks(text):
 def get_vectorstore(text_chunks, api_key):
     """Converts text chunks into embeddings and stores them in a FAISS vector database."""
     # Use Google's free embedding model to convert text to vectors
-    embeddings = GoogleGenerativeAIEmbeddings(model="models/text-embedding-004", google_api_key=api_key)
+    embeddings = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001", google_api_key=api_key)
     return FAISS.from_texts(texts=text_chunks, embedding=embeddings)
 
 def get_conversation_chain(vectorstore, api_key):
