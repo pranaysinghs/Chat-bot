@@ -33,14 +33,14 @@ def get_text_chunks(text):
 
 def get_vectorstore(text_chunks, api_key):
     """Converts text chunks into embeddings and stores them in a FAISS vector database."""
-    # Use HuggingFace's free local embedding model to avoid rate limits!
+    # Use HuggingFace's free local embedding model to avoid Google rate limits!
     embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
     return FAISS.from_texts(texts=text_chunks, embedding=embeddings)
 
 def get_conversation_chain(vectorstore, api_key):
     """Creates the conversational chain that links the vector database with the AI model."""
     # Initialize the Groq Chat model (Insanely fast and free!)
-    llm = ChatGroq(model_name="llama3-8b-8192", temperature=0, groq_api_key=api_key)
+    llm = ChatGroq(model_name="llama-3.1-8b-instant", temperature=0, groq_api_key=api_key)
     
     memory = ConversationBufferMemory(memory_key='chat_history', return_messages=True)
     
@@ -52,16 +52,20 @@ def get_conversation_chain(vectorstore, api_key):
 
 def handle_userinput(user_question):
     """Handles the user's question, gets the response from the chain, and updates the chat UI."""
-    response = st.session_state.conversation({'question': user_question})
-    st.session_state.chat_history = response['chat_history']
+    try:
+        response = st.session_state.conversation({'question': user_question})
+        st.session_state.chat_history = response['chat_history']
 
-    for i, message in enumerate(st.session_state.chat_history):
-        if i % 2 == 0:
-            with st.chat_message("user"):
-                st.write(message.content)
-        else:
-            with st.chat_message("assistant"):
-                st.write(message.content)
+        for i, message in enumerate(st.session_state.chat_history):
+            if i % 2 == 0:
+                with st.chat_message("user"):
+                    st.write(message.content)
+            else:
+                with st.chat_message("assistant"):
+                    st.write(message.content)
+    except Exception as e:
+        # This will force the REAL error to print directly on the web page screen!
+        st.error(f"Here is the hidden API Error: {str(e)}")
 
 def main():
     st.set_page_config(page_title="Chat with multiple PDFs", page_icon=":books:")
