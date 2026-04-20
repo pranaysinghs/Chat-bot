@@ -18,6 +18,8 @@ def get_pdf_text(pdf_docs):
     for pdf in pdf_docs:
         pdf_reader = PdfReader(pdf)
         for page in pdf_reader.pages:
+            # PyPDF2 can only extract text, not images. 
+            # If the page is an image, this returns ""
             text += page.extract_text()
     return text
 
@@ -105,6 +107,12 @@ def main():
                 
             with st.spinner("Processing..."):
                 raw_text = get_pdf_text(pdf_docs)
+                
+                # SAFETY CHECK: Make sure the PDF actually had readable text!
+                if not raw_text.strip():
+                    st.error("Could not extract any text from the uploaded PDFs! They might be scanned images or empty documents. Please try a different PDF that contains readable text.")
+                    return
+
                 text_chunks = get_text_chunks(raw_text)
                 vectorstore = get_vectorstore(text_chunks, api_key)
                 st.session_state.conversation = get_conversation_chain(vectorstore, api_key)
