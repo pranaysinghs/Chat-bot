@@ -5,7 +5,7 @@ from langchain_text_splitters import CharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain_community.vectorstores import FAISS
 from langchain_classic.chains import ConversationalRetrievalChain
-from langchain.memory import ConversationBufferMemory
+from langchain_community.memory import ConversationBufferMemory
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
