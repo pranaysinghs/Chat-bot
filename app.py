@@ -2,7 +2,7 @@ import streamlit as st
 import os
 from PyPDF2 import PdfReader
 from langchain_text_splitters import CharacterTextSplitter
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_groq import ChatGroq
 from langchain_community.vectorstores import FAISS
 from langchain_classic.chains import ConversationalRetrievalChain
 from langchain_classic.memory import ConversationBufferMemory
@@ -18,8 +18,6 @@ def get_pdf_text(pdf_docs):
     for pdf in pdf_docs:
         pdf_reader = PdfReader(pdf)
         for page in pdf_reader.pages:
-            # PyPDF2 can only extract text, not images. 
-            # If the page is an image, this returns ""
             text += page.extract_text()
     return text
 
@@ -35,14 +33,14 @@ def get_text_chunks(text):
 
 def get_vectorstore(text_chunks, api_key):
     """Converts text chunks into embeddings and stores them in a FAISS vector database."""
-    # Use HuggingFace's free local embedding model to avoid Google rate limits!
+    # Use HuggingFace's free local embedding model to avoid rate limits!
     embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
     return FAISS.from_texts(texts=text_chunks, embedding=embeddings)
 
 def get_conversation_chain(vectorstore, api_key):
     """Creates the conversational chain that links the vector database with the AI model."""
-    # Initialize the Google Gemini Chat model
-    llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0, google_api_key=api_key)
+    # Initialize the Groq Chat model (Insanely fast and free!)
+    llm = ChatGroq(model_name="llama3-8b-8192", temperature=0, groq_api_key=api_key)
     
     memory = ConversationBufferMemory(memory_key='chat_history', return_messages=True)
     
@@ -76,10 +74,10 @@ def main():
     st.header("Chat with multiple PDFs :books:")
     
     # Get API Key
-    api_key = os.getenv("GOOGLE_API_KEY")
+    api_key = os.getenv("GROQ_API_KEY")
     if not api_key or api_key == "your_api_key_here":
         try:
-            api_key = st.secrets["GOOGLE_API_KEY"]
+            api_key = st.secrets["GROQ_API_KEY"]
         except Exception:
             pass
     
@@ -87,7 +85,7 @@ def main():
         st.subheader("Configuration")
         
         if not api_key or api_key == "your_api_key_here":
-            user_api_key = st.text_input("Google API Key", type="password", help="Get your free API key from aistudio.google.com")
+            user_api_key = st.text_input("Groq API Key", type="password", help="Get your free API key from console.groq.com")
             if user_api_key:
                 api_key = user_api_key
         else:
@@ -98,7 +96,7 @@ def main():
         
         if st.button("Process"):
             if not api_key or api_key == "your_api_key_here":
-                st.error("Cannot process documents without a Google API Key.")
+                st.error("Cannot process documents without a Groq API Key.")
                 return
                 
             if not pdf_docs:
@@ -108,7 +106,6 @@ def main():
             with st.spinner("Processing..."):
                 raw_text = get_pdf_text(pdf_docs)
                 
-                # SAFETY CHECK: Make sure the PDF actually had readable text!
                 if not raw_text.strip():
                     st.error("Could not extract any text from the uploaded PDFs! They might be scanned images or empty documents. Please try a different PDF that contains readable text.")
                     return
