@@ -42,7 +42,7 @@ def get_vectorstore(text_chunks, api_key):
 def get_conversation_chain(vectorstore, api_key):
     """Creates the conversational chain that links the vector database with the AI model."""
     # Initialize the Google Gemini Chat model
-    llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0, google_api_key=api_key)
+   llm = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0, google_api_key=api_key)
     
     memory = ConversationBufferMemory(memory_key='chat_history', return_messages=True)
     
