@@ -3,8 +3,7 @@ PyPDF2
 langchain
 langchain-text-splitters
 langchain-classic
-langchain-openai
+langchain-google-genai
 langchain-community
 faiss-cpu
-tiktoken
 python-dotenv
