@@ -91,20 +91,27 @@ def main():
     # App title
     st.header("Chat with multiple PDFs :books:")
     
-    # Get API Key from user input or environment variable
+    # Get API Key from environment variable first
     api_key = os.getenv("OPENAI_API_KEY")
+    
+    # If not found, try to get it from Streamlit Secrets (for cloud deployment)
+    if not api_key or api_key == "your_api_key_here":
+        try:
+            api_key = st.secrets["OPENAI_API_KEY"]
+        except Exception:
+            pass
     
     # Sidebar configuration
     with st.sidebar:
         st.subheader("Configuration")
         
-        # If API key isn't in .env, ask for it in the UI
-        user_api_key = st.text_input("OpenAI API Key", type="password", help="Get your API key from platform.openai.com")
-        if user_api_key:
-            api_key = user_api_key
-            
+        # Only show the input box if we don't have a permanent key
         if not api_key or api_key == "your_api_key_here":
-            st.warning("Please enter your OpenAI API key to use the app.")
+            user_api_key = st.text_input("OpenAI API Key", type="password", help="Get your API key from platform.openai.com")
+            if user_api_key:
+                api_key = user_api_key
+        else:
+            st.success("API Key is securely loaded from server!")
             
         st.subheader("Your documents")
         # File uploader allows multiple PDF files
